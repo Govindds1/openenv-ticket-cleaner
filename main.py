@@ -1,7 +1,8 @@
 import pandas as pd
 from typing import Optional
 from fastapi import FastAPI, Request
-from model import Action, Observation, State
+# Ensure your file is named models.py
+from models import Action, Observation, State 
 
 # --- ENVIRONMENT LOGIC ---
 class TicketEnvironment:
@@ -52,7 +53,7 @@ class TicketEnvironment:
             return 1.0 if self.df["priority"].notnull().all() else 0.5
         return 1.0 if self.df["status"].str.islower().all() else 0.0
 
-# --- FASTAPI WRAPPER (This fixes the 500/404 error) ---
+# --- FASTAPI WRAPPER ---
 app = FastAPI()
 global_env = TicketEnvironment()
 
@@ -62,7 +63,6 @@ async def health():
 
 @app.post("/reset")
 async def reset_endpoint(request: Request):
-    # This directly answers the 'openenv reset post' check
     obs = global_env.reset()
     return obs.dict()
 
