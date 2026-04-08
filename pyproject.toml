@@ -1,16 +1,18 @@
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "ticket_cleaner_env"
-version = "1.0.0"
-description = "Ticket cleaning environment for OpenEnv hackathon"
+name = "ticket-cleaner"
+version = "0.1.0"
+description = "OpenEnv Environment"
 dependencies = [
     "pandas",
     "openenv-core",
-    "pydantic",
-    "openai",
+    "fastapi",
     "uvicorn",
-    "fastapi"
+    "pydantic"
 ]
+
+[project.scripts]
+server = "server.app:app"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
