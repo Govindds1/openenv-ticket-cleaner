@@ -58,6 +58,72 @@ class TicketEnvironment:
         
         reward = self.get_reward()
         self._state.step_count += 1
+        
+        if reward >= 1.0 and self._state.current_task_idx < len(self.tasks) - 1:
+            self._state.current_task_idx += 1
+            
+        done = (self._state.current_task_idx == len(self.tasks) - 1 and reward >= 1.0) or self._state.step_count > 10
+        return self._observation(reward=reward, done=done)
+
+    def get_reward(self) -> float:
+        if self._state.current_task_idx == 0:
+            return 1.0 if not self.df.duplicated().any() else 0.0
+        if self._state.current_task_idx == 1:
+            return 1.0 if self.df["priority"].notnull().all() else 0.0
+        return 1.0 if self.df["status"].str.islower().all() else 0.0
+
+# --- FASTAPI SERVER ---
+app = FastAPI()
+env = TicketEnvironment()
+
+@app.get("/")
+async def health():
+    return {"status": "ok", "message": "TicketCleaner Environment Running"}
+
+@app.post("/reset")
+async def reset_endpoint(request: Request):
+    # This handles both empty and populated POST requests
+    obs = env.reset()
+    return obs.model_dump()
+
+@app.post("/step")
+async def step_endpoint(action: Action):
+    obs = env.step(action)
+    return obs.model_dump()
+
+@app.get("/state")
+async def state_endpoint():
+    return env._state.model_dump()
+
+def main():
+    """Entry point for the OpenEnv validator"""
+    uvicorn.run(app, host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()        self._state.step_count = 0
+        self._state.current_task_idx = 0
+        self.tasks = ["remove_duplicates", "fix_priority", "standardize_status"]
+        return self._observation(reward=0.0, done=False)
+
+    def _observation(self, reward: Optional[float], done: bool) -> Observation:
+        return Observation(
+            done=done,
+            reward=reward,
+            data_preview=self.df.to_string(),
+            current_task=self.tasks[self._state.current_task_idx],
+            message=f"Please perform: {self.tasks[self._state.current_task_idx]}",
+        )
+
+    def step(self, action: Action) -> Observation:
+        if action.command == "remove_duplicates":
+            self.df = self.df.drop_duplicates()
+        elif action.command == "fix_priority":
+            self.df["priority"] = self.df["priority"].fillna("Medium")
+        elif action.command == "standardize_status":
+            self.df["status"] = self.df["status"].str.lower()
+        
+        reward = self.get_reward()
+        self._state.step_count += 1
         # Advance task if reward is achieved
         if reward >= 1.0 and self._state.current_task_idx < len(self.tasks) - 1:
             self._state.current_task_idx += 1
