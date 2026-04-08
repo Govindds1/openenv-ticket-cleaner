@@ -73,4 +73,43 @@ async def step_endpoint(action: Action):
 
 @app.get("/state")
 async def state_endpoint():
+    return global_env._state.dict()            self.df = self.df.drop_duplicates()
+        elif action.command == "fix_priority":
+            self.df["priority"] = self.df["priority"].fillna("Medium")
+        elif action.command == "standardize_status":
+            self.df["status"] = self.df["status"].str.lower()
+        
+        reward = self.get_reward()
+        self._state.step_count += 1
+        self._state.current_task_idx = min(self._state.current_task_idx + 1, len(self.tasks) - 1)
+        done = self._state.current_task_idx == len(self.tasks) - 1 and reward == 1.0
+        return self._observation(reward=reward, done=done)
+
+    def get_reward(self) -> float:
+        if self._state.current_task_idx == 0:
+            return 1.0 if not self.df.duplicated().any() else 0.0
+        if self._state.current_task_idx == 1:
+            return 1.0 if self.df["priority"].notnull().all() else 0.5
+        return 1.0 if self.df["status"].str.islower().all() else 0.0
+
+# --- FASTAPI WRAPPER ---
+app = FastAPI()
+global_env = TicketEnvironment()
+
+@app.get("/")
+async def health():
+    return {"status": "ok"}
+
+@app.post("/reset")
+async def reset_endpoint(request: Request):
+    obs = global_env.reset()
+    return obs.dict()
+
+@app.post("/step")
+async def step_endpoint(action: Action):
+    obs = global_env.step(action)
+    return obs.dict()
+
+@app.get("/state")
+async def state_endpoint():
     return global_env._state.dict()
