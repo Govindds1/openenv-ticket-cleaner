@@ -1,30 +1,27 @@
-Ticket Cleaner AI Environment
-A real-world simulation of a customer support ticketing cleanup task built for the OpenEnv specification.
+# 🎫 TicketCleaner-OpenEnv
+**A Real-World Data Operations Environment for AI Agents**
 
-Overview
-This environment simulates the daily task of a data operations specialist cleaning messy support ticket logs. It allows an AI agent to interact with a database to ensure data integrity and standardization.
+[![OpenEnv Spec](https://img.shields.io/badge/Spec-OpenEnv--v1-blue)](https://github.com/openenv/spec)
+[![Deploy to HF](https://img.shields.io/badge/%F0%9F%A4%97-Deploy%20to%20Spaces-yellow)](https://huggingface.co/spaces/Govindds/ticket-cleaner-env)
 
-Action Space
-The agent can perform the following commands via the step() API:
+## 📖 Overview
+TicketCleaner is a high-fidelity simulation of a **Customer Support Data Operations** task. AI agents are tasked with cleaning, imputing, and standardizing a messy ticket database. Unlike toy environments, this reflects the actual workflows of data engineers and support leads.
 
-remove_duplicates: Deduplicates the dataset based on all columns.
+## 🛠️ Environment Specification
+Built on the **OpenEnv** framework, the environment uses a standard `step()` / `reset()` / `state()` API with Pydantic-validated models.
 
-fix_priority: Implements logic to fill missing (null) priority values with a "Medium" default.
+### 🔭 Observation Space
+The agent receives a `data_preview` (a string representation of the current DataFrame) and the `current_task` description.
 
-standardize_status: Normalizes the 'status' column to lowercase to ensure consistency.
+### 🎮 Action Space
+The agent interacts with the environment using the following commands:
+| Command | Effect |
+| :--- | :--- |
+| `remove_duplicates` | Removes identical row entries. |
+| `fix_priority` | Fills `NaN` priority values with a default "Medium" tag. |
+| `standardize_status` | Normalizes all status entries to lowercase. |
 
-Tasks & Difficulty
-Task 1 (Easy): Identify and remove identical duplicate rows.
+## 🎯 Task Suite & Grading
+The environment features three tasks with programmatic reward signals ($0.0$ to $1.0$):
 
-Task 2 (Medium): Handle missing data by imputing values into the priority column.
-
-Task 3 (Hard): Perform string normalization across the status column.
-
-Setup & Usage
-Prerequisites: Docker, Python 3.10+
-
-Build: docker build -t ticket-cleaner .
-
-Run: docker run -p 7860:7860 ticket-cleaner
-
-Evaluate: Run python inference.py to see the agent in action.
+1. **Task 1 (Easy
