@@ -1,18 +1,15 @@
-# Use a lightweight Python image
 FROM python:3.10-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy all your files into the container
+# Copy everything
 COPY . .
 
-# Install the necessary libraries
-# We include uvicorn to serve the API
-RUN pip install pandas openenv-core pydantic openai uvicorn
+# Install dependencies and the local package
+RUN pip install --no-cache-dir -e .
 
-# Open the port Hugging Face expects
+# Expose the port
 EXPOSE 7860
 
-# Command to run your app
-CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
+# Use the 'server' script defined in pyproject.toml
+CMD ["server"]
