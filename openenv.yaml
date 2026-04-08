@@ -1,0 +1,11 @@
+name: "ticket_cleaner_env"
+version: "1.0.0"
+description: "Environment for cleaning customer support ticket data"
+entrypoint: "main:app"
+tasks:
+  - id: "remove_duplicates"
+    difficulty: "easy"
+  - id: "fix_priority"
+    difficulty: "medium"
+  - id: "standardize_status"
+    difficulty: "hard"
