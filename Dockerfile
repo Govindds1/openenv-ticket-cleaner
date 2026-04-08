@@ -15,4 +15,4 @@ RUN pip install pandas openenv-core pydantic openai uvicorn
 EXPOSE 7860
 
 # Command to run your app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]
