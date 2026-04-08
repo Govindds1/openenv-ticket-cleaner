@@ -1,4 +1,5 @@
 import pandas as pd
+import uvicorn
 from typing import Optional, List
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
@@ -92,4 +93,9 @@ async def step_endpoint(action: Action):
 @app.get("/state")
 async def state_endpoint():
     return env._state.model_dump()
+def main():
+    """Entry point for the OpenEnv validator"""
+    uvicorn.run(app, host="0.0.0.0", port=7860)
 
+if __name__ == "__main__":
+    main()
