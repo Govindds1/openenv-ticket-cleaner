@@ -128,15 +128,19 @@ if __name__ == "__main__":
         if reward >= 1.0 and self._state.current_task_idx < len(self.tasks) - 1:
             self._state.current_task_idx += 1
             
-        done = (self._state.current_task_idx == len(self.tasks) - 1 and reward >= 1.0) or self._state.step_count > 10
+        done = (self._state.current_task_idx == len(self.tasks) - 1 and reward > 0.9) or self._state.step_count > 10
         return self._observation(reward=reward, done=done)
 
     def get_reward(self) -> float:
+        # We use 0.99 and 0.01 to stay strictly within (0, 1) range as required
         if self._state.current_task_idx == 0:
-            return 1.0 if not self.df.duplicated().any() else 0.0
+            return 0.99 if not self.df.duplicated().any() else 0.01
+        
         if self._state.current_task_idx == 1:
-            return 1.0 if self.df["priority"].notnull().all() else 0.0
-        return 1.0 if self.df["status"].str.islower().all() else 0.0
+            return 0.99 if self.df["priority"].notnull().all() else 0.01
+        
+        # Task 3
+        return 0.99 if self.df["status"].str.islower().all() else 0.01
 
 # --- FASTAPI SERVER ---
 app = FastAPI()
