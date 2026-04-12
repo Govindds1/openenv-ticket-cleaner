@@ -3,7 +3,7 @@ import os
 import textwrap
 from typing import List, Optional
 from openai import OpenAI
-from main import TicketEnvironment
+from server.app import TicketEnvironment
 from model import Action
 
 # Configuration
